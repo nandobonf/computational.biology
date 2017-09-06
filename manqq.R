@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-# test.coomiit
 
 if (!require("optparse", quietly = T)) install.packages("optparse")
 library(optparse)
@@ -24,8 +23,6 @@ opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
 
-# args = commandArgs(trailingOnly=TRUE)
-# inputname <- paste(args[1])
 #inputname <- "~/UKB/icd10/final.results/UKB.results.IBS.icd10.logistic.annotated.gz" # only for testing
 
 suppressMessages(library(GWASTools))
