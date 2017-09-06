@@ -13,6 +13,8 @@ option_list = list(
               help="Column name for the genomic position, [default = %default]", metavar="character"),
   make_option(c("-p", "--pvalue"), type="character", default="P", 
               help="Column name for the association p-value, [default = %default]", metavar="character"),
+  make_option(c("-c", "--cut"), type="logical", default=F, 
+              help="To speed up plotting, cut out snps with P > 0.05, [default = %default]", metavar="logical"),
   make_option(c("-m", "--manout"), type="character", default="out", 
               help="output file name [default = %default(.manhattan.png)]", metavar="character"),
   make_option(c("-q", "--qqout"), type="character", default="out", 
@@ -24,10 +26,11 @@ opt = parse_args(opt_parser);
 
 
 #inputname <- "~/UKB/icd10/final.results/UKB.results.IBS.icd10.logistic.annotated.gz" # only for testing
-
+suppressMessages(library(BiocInstaller))
+suppressMessages(if (!require('GWASTools', quietly = T)) biocLite('GWASTools'))
 suppressMessages(library(GWASTools))
-if (!require('GWASTools', quietly = T)) install.packages('GWASTools')
-if (!require('data.table', quietly = T)) install.packages('data.table')
+suppressMessages(if (!require('data.table', quietly = T)) install.packages('data.table'))
+suppressMessages(library(data.table))
 library(tools, quietly = T)
 library(stringr, quietly = T)
 
@@ -40,7 +43,9 @@ if (file_ext(opt$file) == 'gz') {
   data.man <- fread(paste(opt$file), select = c(opt$pvalue, opt$chromosome, opt$basepair), data.table = F)
 }
 
-
+if (opt$cut == T) {
+  data.man <- data.man[data.man[,1] <= 0.05,]
+}
 data.man <- data.man[!is.na(data.man[,1]),]
 data.man <- data.man[order(data.man[,2], data.man[,3]),]
 max <- ceiling(max(-log10(data.man[,1]))+1)
