@@ -45,10 +45,13 @@ if (file_ext(opt$file) == 'gz') {
   data.man <- fread(paste(opt$file), select = c(opt$pvalue, opt$chromosome, opt$basepair), data.table = F)
 }
 
+data.man <- data.man[!is.na(data.man[,1]),]
+ntests = nrow(data.man)
+lam <- round(x = median(qchisq(1-data.man[,1], 1))/qchisq(0.5, 1), 4)
+
 if (opt$cut == T) {
   data.man <- data.man[data.man[,1] <= 0.05,]
 }
-data.man <- data.man[!is.na(data.man[,1]),]
 data.man <- data.man[order(data.man[,2], data.man[,3]),]
 max <- ceiling(max(-log10(data.man[,1]))+1)
 png(file = paste0(opt$manout, '.manhattan.png'), width = 3400, height = 2000, res = 300)
@@ -60,8 +63,27 @@ if (opt$cut == F) {
 abline(h = -log10(opt$threshold), lty = 'dashed', col = 'blue')
 abline(h = -log10(5e-8), lty = 'dashed', col = 'red')
 dev.off()
-data.man <- as.data.frame(data.man)
-lam <- round(x = median(qchisq(1-data.man[,1][!is.na(data.man[,1])],1))/qchisq(0.5,1), 4)
+cat("Manhattan plot written to:", paste0(opt$manout, '.manhattan.png'))
+
+pvalues <- data.man[,1]
+pvalues = sort.int(pvalues)
+ypvs = -log10(pvalues)
+xpvs = -log10(seq_along(ypvs)/ntests)
+levels = as.integer((xpvs - xpvs[1])/(tail(xpvs, 1) - xpvs[1]) * 2000)
+keep = c(TRUE, diff(levels) != 0)
+levels = as.integer((ypvs - ypvs[1])/(tail(ypvs, 1) - ypvs[1]) * 2000)
+keep = keep | c(TRUE, diff(levels) != 0)
+keep = which(keep)
+ypvs = ypvs[keep]
+xpvs = xpvs[keep]
+mx = head(xpvs, 1) * 1.05
+my = max(mx * 1.15, head(ypvs, 1)) * 1.05
 png(file = paste0(opt$qqout, '.qq.png'), res = 300, width = 1600, height = 1600)
-qqPlot(data.man[,1], ci = F, main = paste('lambda = ', lam))
+plot(NA, NA, ylim = c(0, my), xlim = c(0, mx), xaxs = "i", 
+     yaxs = "i", xlab = expression("- log"[10] * "(p-value), expected under null"), 
+     ylab = expression("- log"[10] * "(p-value), observed"))
+lines(c(0, mx), c(0, mx), col = "grey")
+points(xpvs, ypvs, pch = 19, cex = 0.5)
+title(main = paste0("Lambda = ", lam))
 dev.off()
+cat("QQ-plot plot written to:", paste0(opt$qqout, '.qq.png'))
