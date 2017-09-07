@@ -17,6 +17,8 @@ option_list = list(
               help="To speed up plotting, cut out snps with P > 0.05, [default = %default]", metavar="logical"),
   make_option(c("-m", "--manout"), type="character", default="out", 
               help="output file name [default = %default(.manhattan.png)]", metavar="character"),
+  make_option(c("-t", "--threshold"), type="numeric", default=5e-6, 
+              help="threshold line for suggestive significance [default = %default]", metavar="numeric"),
   make_option(c("-q", "--qqout"), type="character", default="out", 
               help="output file name [default = %default(qq.png)]", metavar="character")
 ); 
@@ -50,8 +52,12 @@ data.man <- data.man[!is.na(data.man[,1]),]
 data.man <- data.man[order(data.man[,2], data.man[,3]),]
 max <- ceiling(max(-log10(data.man[,1]))+1)
 png(file = paste0(opt$manout, '.manhattan.png'), width = 3400, height = 2000, res = 300)
-manhattanPlot(data.man[,1], data.man[,2], ylim = c(0,max), signif = NULL)
-abline(h = -log10(5e-6), lty = 'dashed', col = 'blue')
+if (opt$cut == F) {
+  manhattanPlot(data.man[,1], data.man[,2], ylim = c(0,max), signif = NULL)
+} else {
+  manhattanPlot(data.man[,1], data.man[,2], ylim = c(1,max), signif = NULL)
+}
+abline(h = -log10(opt$threshold), lty = 'dashed', col = 'blue')
 abline(h = -log10(5e-8), lty = 'dashed', col = 'red')
 dev.off()
 data.man <- as.data.frame(data.man)
