@@ -1,13 +1,32 @@
 #!/usr/bin/env Rscript
 
 cat("### Loading required packages...\n")
-if (!require("optparse", quietly = T)) install.packages("optparse")
-library(optparse)
+# if (!require("optparse", quietly = T)) install.packages("optparse")
+# library(optparse)
+# suppressMessages(library(BiocInstaller))
+# suppressMessages(if (!require('GWASTools', quietly = T)) biocLite('GWASTools'))
+# suppressMessages(library(GWASTools))
+# suppressMessages(if (!require('data.table', quietly = T)) install.packages('data.table'))
+# suppressMessages(library(data.table))
+# suppressMessages(library(tools, quietly = T))
+# suppressMessages(library(stringr, quietly = T))
+
+list.of.packages.cran <- c("tools", "stringr", "data.table", "optparse")
+new.packages <- list.of.packages.cran[!(list.of.packages.cran %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages.cran, require, character.only = TRUE)
+list.of.packages.bioc <- c("GWASTools")
+new.packages <- list.of.packages.bioc[!(list.of.packages.bioc %in% installed.packages()[,"Package"])]
+suppressMessages(source("https://bioconductor.org/biocLite.R"))
+if(length(new.packages)) biocLite(new.packages)
+cat("Loading required package: GWASTools\n")
+suppressMessages(lapply(list.of.packages.bioc, require, character.only = TRUE))
+
 
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=NA, 
               help="Text file with the columns P, CHROM and POS, it can also be compressed (.gz)", metavar="character"),
-  make_option(c("-", "--chromosome"), type="character", default="CHR", 
+  make_option(c("-r", "--chromosome"), type="character", default="CHR", 
               help="Column name for the chromosome, [default = %default]", metavar="character"),
   make_option(c("-b", "--basepair"), type="character", default="BP", 
               help="Column name for the genomic position, [default = %default]", metavar="character"),
@@ -26,17 +45,6 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
-
-#inputname <- "~/UKB/icd10/final.results/UKB.results.IBS.icd10.logistic.annotated.gz" # only for testing
-suppressMessages(library(BiocInstaller))
-suppressMessages(if (!require('GWASTools', quietly = T)) biocLite('GWASTools'))
-suppressMessages(library(GWASTools))
-suppressMessages(if (!require('data.table', quietly = T)) install.packages('data.table'))
-suppressMessages(library(data.table))
-suppressMessages(library(tools, quietly = T))
-suppressMessages(library(stringr, quietly = T))
-
-# outfilename <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(inputname))
 
 cat("### Reading input file...\n")
 if (is.na(opt$file)) {stop("input files must be provided. See script usage (--help)")}
