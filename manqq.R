@@ -31,8 +31,8 @@ suppressMessages(if (!require('GWASTools', quietly = T)) biocLite('GWASTools'))
 suppressMessages(library(GWASTools))
 suppressMessages(if (!require('data.table', quietly = T)) install.packages('data.table'))
 suppressMessages(library(data.table))
-library(tools, quietly = T)
-library(stringr, quietly = T)
+suppressMessages(library(tools, quietly = T))
+suppressMessages(library(stringr, quietly = T))
 
 # outfilename <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(inputname))
 
