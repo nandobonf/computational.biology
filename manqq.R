@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-
+cat("### Loading required packages...\n")
 if (!require("optparse", quietly = T)) install.packages("optparse")
 library(optparse)
 
@@ -38,6 +38,7 @@ suppressMessages(library(stringr, quietly = T))
 
 # outfilename <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(inputname))
 
+cat("### Reading input file...\n")
 if (is.na(opt$file)) {stop("input files must be provided. See script usage (--help)")}
 if (file_ext(opt$file) == 'gz') {
   data.man <- fread(paste0('gunzip -c ',opt$file), select = c(opt$pvalue, opt$chromosome, opt$basepair), data.table = F)
@@ -45,12 +46,14 @@ if (file_ext(opt$file) == 'gz') {
   data.man <- fread(paste(opt$file), select = c(opt$pvalue, opt$chromosome, opt$basepair), data.table = F)
 }
 
+cat("### Calculating genomic lambda...")
 data.man <- data.man[!is.na(data.man[,1]),]
 ntests = nrow(data.man)
 lam <- round(x = median(qchisq(1-data.man[,1], 1))/qchisq(0.5, 1), 4)
-
+cat("lambda =", paste(lam), "\n")
 if (opt$cut == T) {
   data.man <- data.man[data.man[,1] <= 0.05,]
+  cat("### Removing P values > 0.05 to increase plotting speed...\n")
 }
 data.man <- data.man[order(data.man[,2], data.man[,3]),]
 max <- ceiling(max(-log10(data.man[,1]))+1)
@@ -62,8 +65,10 @@ if (opt$cut == F) {
 }
 abline(h = -log10(opt$threshold), lty = 'dashed', col = 'blue')
 abline(h = -log10(5e-8), lty = 'dashed', col = 'red')
-dev.off()
-cat("Manhattan plot written to:", paste0(opt$manout, '.manhattan.png'))
+invisible(dev.off())
+
+cat("### Output files created:\n")
+cat("### Manhattan plot written to:", paste0(opt$manout, '.manhattan.png\n'))
 
 pvalues <- data.man[,1]
 pvalues = sort.int(pvalues)
@@ -85,5 +90,5 @@ plot(NA, NA, ylim = c(0, my), xlim = c(0, mx), xaxs = "i",
 lines(c(0, mx), c(0, mx), col = "grey")
 points(xpvs, ypvs, pch = 19, cex = 0.5)
 title(main = paste0("Lambda = ", lam))
-dev.off()
-cat("QQ-plot plot written to:", paste0(opt$qqout, '.qq.png'))
+invisible(dev.off())
+cat("### QQ-plot plot written to:", paste0(opt$qqout, '.qq.png\n'))
