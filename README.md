@@ -6,6 +6,7 @@ Run it as an executable from command line to see all the available options.
 Usage: ./manqq.R [options]
 
 Options:
+
         -f CHARACTER, --file=CHARACTER
                 Text file with the columns P, CHROM and POS, it can also be compressed (.gz)
 
