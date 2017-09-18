@@ -34,4 +34,4 @@ Options:
         -h, --help
                 Show this help message and exit
 
-# OTHER APPS
+# Other apps and tools coming soon...
