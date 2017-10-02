@@ -63,6 +63,8 @@ if (opt$cut == T) {
   data.man <- data.man[data.man[,1] <= 0.05,]
   cat("### Removing P values > 0.05 to increase plotting speed...\n")
 }
+data.man <- data.man[,!data.man[2] %in% c("X","x","Y","y","23","24")]
+data.man[,c(2:3):= lapply(.SD, as.numeric), .SDcols = 2:3]
 data.man <- data.man[order(data.man[,2], data.man[,3]),]
 max <- ceiling(max(-log10(data.man[,1]))+1)
 png(file = paste0(opt$manout, '.manhattan.png'), width = 3400, height = 2000, res = 300)
