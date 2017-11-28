@@ -34,4 +34,3 @@ Options:
         -h, --help
                 Show this help message and exit
 
-# Other apps and tools coming soon...
